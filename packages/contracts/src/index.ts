@@ -17,3 +17,18 @@ export const Edge = z.object({
   type: z.enum(["prereq", "part_of"]),
 });
 export type Edge = z.infer<typeof Edge>;
+
+// Messages over websocket
+
+// Client (UI) to server
+export const ClientMsg = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("ping"), text: z.string() }),
+]);
+export type ClientMsg = z.infer<typeof ClientMsg>;
+
+// Server to client (UI)
+export const ServerMsg = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("pong"), text: z.string(), receivedAt: z.string() }),
+  z.object({ type: z.literal("error"), message: z.string() }),
+]);
+export type ServerMsg = z.infer<typeof ServerMsg>;
