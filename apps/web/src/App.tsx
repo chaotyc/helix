@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { Goal, Session, TimelineItem } from "@helix/contracts";
 import * as fixtures from "./fixtures.ts";
+import { send } from "./connection.ts";
+import { useAppStore } from "./store.ts";
 import { useShortcut } from "./hooks/useShortcut.ts";
 import { CommandPalette, type Command } from "./components/CommandPalette.tsx";
 import { Composer } from "./components/Composer.tsx";
@@ -9,9 +11,13 @@ import { SessionTimeline } from "./components/SessionTimeline.tsx";
 import { Sidebar } from "./components/Sidebar.tsx";
 
 export function App() {
-  // ---- State: everything the screen depends on. Starts from the fake data. ----
-  const [goals, setGoals] = useState<Goal[]>(fixtures.goals);
-  const [sessions, setSessions] = useState<Session[]>(fixtures.sessions);
+  // ---- App-wide state from the store (shared with the connection module). ----
+  const goals = useAppStore((state) => state.goals);
+  const sessions = useAppStore((state) => state.sessions);
+  const addGoal = useAppStore((state) => state.addGoal);
+  const addSession = useAppStore((state) => state.addSession);
+
+  // ---- State only this screen uses. ----
   const [timelines, setTimelines] = useState<Record<string, TimelineItem[]>>(fixtures.timelines);
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>("goal-signals");
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>("session-1");
@@ -44,7 +50,7 @@ export function App() {
       capstone: "",
       createdAt: new Date().toISOString(),
     };
-    setGoals([...goals, goal]);
+    addGoal(goal);
     setSelectedGoalId(goal.id);
     setSelectedSessionId(null);
   }
@@ -56,7 +62,7 @@ export function App() {
       goalId: selectedGoalId,
       startedAt: new Date().toISOString(),
     };
-    setSessions([...sessions, session]);
+    addSession(session);
     setSelectedSessionId(session.id);
   }
 
@@ -77,6 +83,15 @@ export function App() {
     { id: "new-goal", label: "New goal", run: newGoal },
     { id: "new-session", label: "New session", run: newSession },
     { id: "toggle-map", label: "Toggle map", run: () => setMapOpen((open) => !open) },
+    // Temporary (Step 6): checks the round trip to the server. The pong shows in the sidebar.
+    {
+      id: "ping",
+      label: "Ping server",
+      run: () => {
+        const sent = send({ type: "ping", text: "hello from the UI" });
+        if (!sent) console.warn("Not connected, so the ping wasn't sent.");
+      },
+    },
     ...goals.map((goal) => ({
       id: `jump-${goal.id}`,
       label: `Jump to goal: ${goal.title}`,

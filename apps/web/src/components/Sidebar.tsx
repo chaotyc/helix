@@ -1,4 +1,5 @@
 import type { Goal, Session } from "@helix/contracts";
+import { ConnectionIndicator } from "./ConnectionIndicator.tsx";
 
 type Props = {
   goals: Goal[];
@@ -62,6 +63,8 @@ export function Sidebar(props: Props) {
           );
         })}
       </nav>
+
+      <ConnectionIndicator />
     </aside>
   );
 }
