@@ -23,7 +23,10 @@ function formatStart(iso: string): string {
 export function Sidebar(props: Props) {
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950">
-      <div className="px-4 py-3 text-sm font-semibold tracking-wide text-zinc-200">Helix</div>
+      <div className="flex items-center gap-2 px-4 py-3 text-sm font-semibold tracking-wide text-zinc-200">
+        <img src="/brand/helix-mark-on-dark.svg" alt="" className="h-5 w-5" />
+        Helix
+      </div>
 
       <nav className="flex-1 overflow-y-auto px-2 pb-4">
         {props.goals.map((goal) => {
